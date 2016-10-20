@@ -5,6 +5,7 @@
 declare -i count #number of dice to roll
 declare -i sides #number of sides on dice must be between 4-20
 sides=0
+tally=0
 
 #functions
 function usage {
@@ -67,7 +68,13 @@ until [ $sides -gt 3 -a $sides -lt 21 ]; do
 done
 
 #main/work
+
 for (( rolls=0 ; rolls < count ; rolls++ )); do
 	die1=$(($RANDOM % $sides +1))
+	tally=$((tally + die1))
 	echo "Rolled $die1"
 done
+
+echo "your total roll was $tally"
+
+
