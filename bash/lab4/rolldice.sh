@@ -2,8 +2,17 @@
 #asks the user for a count of dice and then rolls them, default is 
 
 ##declare vars
-count=0 #number of dice to roll
-sides=0 #number of sides on dice must be between 4-20
+declare -i count #number of dice to roll
+declare -i sides #number of sides on dice must be between 4-20
+sides=0
+
+#functions
+function usage {
+	echo "usage: $1 [-h] [-c numberofdice] [-s 4-20]"
+}
+function errormessage {
+	echo "$@" >&2
+}
 
 
 #Command line processing
@@ -11,7 +20,7 @@ sides=0 #number of sides on dice must be between 4-20
 while [ $# -gt 0 ]; do
 	case "$1" in
 	-h )
-		echo "usage: $1 [-h] [-c numberofdice] [-s 4-20]"
+		usage
 		exit 0
 	;;
 
@@ -20,7 +29,7 @@ while [ $# -gt 0 ]; do
 			count=$2
 			shift
 		else
-			echo "You gave '$2' as the number of dice rolls, fix that" >&2
+			errormessage "You gave '$2' as the number of dice rolls, fix that"
 			exit 1
 		fi
 	;;
@@ -28,20 +37,20 @@ while [ $# -gt 0 ]; do
 	-s )
 		if [[ "$2" =~ ^[1-9][0-9]*$ ]]; then
 			if [ $2 -lt 4 -o $2 -gt 20 ]; then
-				echo "number of sides must be between 4-20" >&2
+				errormessage "number of sides must be between 4-20"
 				exit 1
 			else
 				sides=$2
 				shift
 			fi
 		else
-			echo "You gave '$2' as the number of sided dice, fix that" >&2
+			errormessage "You gave '$2' as the number of sided dice, fix that"
 			exit 1
 		fi
 	;;
 	* )
 		echo "I don't understand '$1'" >&2
-		echo "usage: $1 [-h] [-c numberofdice] [-s 4-20]"
+		usage
 		exit 1	
 	;;
 	esac
@@ -50,20 +59,14 @@ done
 
 
 #user input validation
-# get a valid roll count from the user
-until [[ $count =~ ^[1-9][0-9]*$ ]]; do
+until [ $count -gt 0 ]; do
 	read -p "How many dice shall I roll? " count
 done
-until [[ $sides =~ ^[1-9][0-9]*$ ]]; do
+until [ $sides -gt 3 -a $sides -lt 21 ]; do
 	read -p "How many sides should the die have[4-20]? " sides
-	if [  "$sides" -lt 4 -o "$sides" -gt 20 ]; then
-		echo "$sides must be from 4 to 20 inclusive" >&2
-		sides=0
-	fi
 done
 
 #main/work
-# do the dice roll as many times as the user asked for
 for (( rolls=0 ; rolls < count ; rolls++ )); do
 	die1=$(($RANDOM % $sides +1))
 	echo "Rolled $die1"
